@@ -1,5 +1,5 @@
 import axios from 'axios';
-const API = axios.create({ baseURL: 'http://localhost:7878/api' });
+const API = axios.create({ baseURL: 'https://crmfoceplus-backend.onrender.com/api' });
 
 //Get all galleries
 export const fetchGalleries = () => API.get('/getgalleries');
