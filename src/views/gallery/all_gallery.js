@@ -32,7 +32,7 @@ const Gallery = ({ className }) => {
   const [galleries, setGalleries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const APP_URL = 'http://localhost:7878';
+  const APP_URL = 'https://crmfoceplus-backend.onrender.com';
 
   // Fetch galleries on component mount
   useEffect(() => {

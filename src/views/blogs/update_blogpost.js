@@ -21,7 +21,7 @@ import { fetchCategories, fetchBlogPostById, updateBlogPost } from '../../api/ap
 const EditBlogPost = () => {
   const { id } = useParams();   
   const navigate = useNavigate();
-  const APP_URL = 'http://localhost:7878';
+  const APP_URL = 'https://crmfoceplus-backend.onrender.com';
 
   const [post, setPost] = useState({
     title: '',
