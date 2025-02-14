@@ -103,7 +103,7 @@ const Login = () => {
                     <p>
                       If you want to forget your password, please click Forgot Password Button.
                     </p>
-                    <Link to="/register">
+                    <Link to="/forgotpassword">
                       <CButton color="primary" className="mt-3" active tabIndex={-1}>
                         Forgot Now!
                       </CButton>
