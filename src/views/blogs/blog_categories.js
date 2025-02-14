@@ -23,14 +23,17 @@ import {
   CFormLabel,
   CFormInput as CFormInputModal,
   CFormSelect,
-  CFormText
+  CFormText,
+  CSpinner
 } from '@coreui/react';
-import { fetchCategories, createCategory, updateCategory, deleteCategory } from '../../api/api';  // Assuming these are the correct API functions
+import { fetchCategories, createCategory, updateCategory, deleteCategory } from '../../api/api';  
+import './blogstyle.css';
 
 const BlogCategory = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [newCategory, setNewCategory] = useState({
     title: '',
     slug: '',
@@ -106,22 +109,23 @@ const BlogCategory = () => {
     if (!validateForm()) {
       return;
     }
-
+   setLoading(true);
     try {
       const response = await createCategory(newCategory);
-      loadCategories(); // Reload categories after creating one
+      loadCategories();  
 
       setNewCategory({
         title: '',
         slug: '',
         status: 'Active'
       });
+      setLoading(false);
       setModalVisible(false);
-      setServerError('');  // Clear any previous server errors
+      setServerError(''); 
     } catch (error) {
       console.error('Error creating category:', error);
       if (error.response && error.response.data) {
-        // Display the error message from the backend
+        
         setServerError(error.response.data.message || 'An error occurred while creating the category.');
       } else {
         setServerError('An internal server error occurred.');
@@ -216,6 +220,15 @@ const BlogCategory = () => {
   );
 
   return (
+    <>
+      {loading && (
+                                 <div className="loading-overlay">
+                                     <div className="loading-content">
+                                         <CSpinner color="primary" size="lg" />
+                                         <p>Please wait, Your request is processing...</p>
+                                     </div>
+                                 </div>
+                             )}
     <CRow>
       <CCol xs={6} className="d-flex justify-content-start">
         <CButton color="primary" onClick={() => setModalVisible(true)}>Create Category</CButton>
@@ -329,6 +342,8 @@ const BlogCategory = () => {
         </CModalFooter>
       </CModal>
     </CRow>
+    </>
+    
   );
 };
 
