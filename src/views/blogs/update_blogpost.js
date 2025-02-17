@@ -28,7 +28,7 @@ const EditBlogPost = () => {
     slug: '',
     excerpt: '',
     content: '',
-    category: '',
+    category: '',  
     metaTitle: '',
     metaDescription: '',
     metakeywords: '',
@@ -60,7 +60,7 @@ const EditBlogPost = () => {
     }
   };
 
-  // Load categories and authors
+  // Load categories
   const loadCategories = async () => {
     try {
       const response = await fetchCategories();
@@ -81,21 +81,25 @@ const EditBlogPost = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setPost((prevPost) => ({ ...prevPost, [name]: value }));
+    
+    // For category, ensure that we store the category as an object with an _id
+    if (name === "category") {
+      setPost((prevPost) => ({ ...prevPost, [name]: { _id: value } }));
+    } else {
+      setPost((prevPost) => ({ ...prevPost, [name]: value }));
+    }
 
-  
     setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
   };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
- 
+
     setPost((prevPost) => ({ ...prevPost, [name]: file }));
 
-     
     if (file) {
-      const previewUrl = URL.createObjectURL(file);   
+      const previewUrl = URL.createObjectURL(file);
       if (name === 'banner') {
         setBannerPreview(previewUrl);   
       } else if (name === 'metaimage') {
@@ -137,7 +141,6 @@ const EditBlogPost = () => {
       isValid = false;
     }
 
-   
     setErrors(validationErrors);  
     return isValid;
   };
@@ -145,9 +148,8 @@ const EditBlogPost = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-     
     setBackendErrors({});
- 
+
     if (!validateForm()) {
       return;
     }
@@ -159,7 +161,7 @@ const EditBlogPost = () => {
     formData.append('slug', post.slug);
     formData.append('excerpt', post.excerpt);
     formData.append('content', post.content);
-    formData.append('category', post.category);
+    formData.append('category', post.category ? post.category._id : '');   
     formData.append('author', post.author);
     formData.append('metaTitle', post.metaTitle);
     formData.append('metaDescription', post.metaDescription);
@@ -178,12 +180,10 @@ const EditBlogPost = () => {
       const response = await updateBlogPost(token, id, formData);
       navigate('/all-blogs');  
     } catch (error) {
-      
       if (error.response && error.response.data) {
         const errorMessage = error.response.data.error || 'An error occurred while updating the blog post';
         const errorDetails = error.response.data.details || {};
 
-         
         if (errorDetails.code === 11000 && errorDetails.keyPattern.slug) {
           setBackendErrors((prev) => ({
             ...prev,
@@ -191,7 +191,6 @@ const EditBlogPost = () => {
             general: errorMessage,
           }));
         } else {
-          // For any other error, set a general error message
           setBackendErrors((prev) => ({
             ...prev,
             general: errorMessage,
@@ -316,6 +315,7 @@ const EditBlogPost = () => {
                 ))}
               </CFormSelect>
               {errors.category && <CFormText className="text-danger">{errors.category}</CFormText>}
+
               {/* Meta Image Field */}
               <CFormLabel htmlFor="metaimage" className="form-label">Meta Image</CFormLabel>
               <CFormInput
