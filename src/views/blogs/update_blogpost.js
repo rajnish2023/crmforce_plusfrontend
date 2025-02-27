@@ -14,9 +14,13 @@ import {
   CCard,
   CCardBody,
   CCardHeader,
+  CSpinner
 } from '@coreui/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchCategories, fetchBlogPostById, updateBlogPost } from '../../api/api';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EditBlogPost = () => {
   const { id } = useParams();   
@@ -41,19 +45,19 @@ const EditBlogPost = () => {
 
   const [bannerPreview, setBannerPreview] = useState(null);
   const [metaImagePreview, setMetaImagePreview] = useState(null);
+   const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem('token');
-
-  // Fetch blog post data by ID
+ 
   const loadBlogPost = async () => {
     try {
       const response = await fetchBlogPostById(id);
       setPost(response.data);
       if (response.data.banner) {
-        setBannerPreview(response.data.banner); // If banner exists, show preview
+        setBannerPreview(response.data.banner); 
       }
       if (response.data.metaimage) {
-        setMetaImagePreview(response.data.metaimage); // If metaimage exists, show preview
+        setMetaImagePreview(response.data.metaimage);  
       }
     } catch (error) {
       console.error('Error fetching blog post:', error);
@@ -81,8 +85,6 @@ const EditBlogPost = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    // For category, ensure that we store the category as an object with an _id
     if (name === "category") {
       setPost((prevPost) => ({ ...prevPost, [name]: { _id: value } }));
     } else {
@@ -146,11 +148,13 @@ const EditBlogPost = () => {
   };
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
 
     setBackendErrors({});
 
     if (!validateForm()) {
+      setLoading(false);
       return;
     }
 
@@ -178,31 +182,43 @@ const EditBlogPost = () => {
 
     try {
       const response = await updateBlogPost(token, id, formData);
-      navigate('/all-blogs');  
+      if(response.status==200){
+        setLoading(false);
+        toast.success("Blog Updated Successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: true,
+      });
+      }
+      // navigate('/all-blogs');  
     } catch (error) {
-      if (error.response && error.response.data) {
-        const errorMessage = error.response.data.error || 'An error occurred while updating the blog post';
-        const errorDetails = error.response.data.details || {};
-
-        if (errorDetails.code === 11000 && errorDetails.keyPattern.slug) {
+        if (error.response.status == 500) {
+          setLoading(false);
           setBackendErrors((prev) => ({
             ...prev,
             slug: 'This slug is already taken.',
-            general: errorMessage,
+           
           }));
         } else {
           setBackendErrors((prev) => ({
             ...prev,
-            general: errorMessage,
+           
           }));
         }
-      } else {
-        setBackendErrors({ general: 'An unexpected error occurred' });
-      }
+       
     }
   };
 
   return (
+    <>
+    {loading && (
+                <div className="loading-overlay">
+                <div className="loading-content">
+                <CSpinner color="primary" size="lg" />
+                <p>Please wait, Your request is processing...</p>
+                </div>
+                </div>
+               )}
     <CForm onSubmit={handleSubmit}>
       <CRow className="form-container" style={{ padding: '20px' }}>
         {/* Left Column (col-9) */}
@@ -281,7 +297,7 @@ const EditBlogPost = () => {
                   menubar: true,
                   plugins: ['image', 'link', 'code', 'lists', 'table', 'fullscreen'],
                   toolbar:
-                    'undo redo | bold italic | alignleft aligncenter alignright | image | link | h1 h2 h3 h4 h5 h6 | code | fullscreen',
+                    'undo redo | bold italic | alignleft aligncenter alignright | image | link | h1 h2 h3 h4 h5 h6 | code | fullscreen| numlist bullist',
                   content_style: 'h1,h2,h3,h4,h5,h6 { color: #000; }',
                 }}
               />
@@ -387,7 +403,10 @@ const EditBlogPost = () => {
           </CCard>
         </CCol>
       </CRow>
+      <ToastContainer /> 
     </CForm>
+    </>
+    
   );
 };
 

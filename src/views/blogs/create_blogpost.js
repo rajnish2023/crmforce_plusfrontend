@@ -68,6 +68,17 @@ const CreateBlogPost = () => {
     setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
   };
 
+  const handleKeyUp = () => {
+    
+    const slug = newPost.title
+      .toLowerCase()
+      .replace(/\s+/g, '-')  
+      .replace(/[^\w-]+/g, '')  
+      .replace(/--+/g, '-')  
+      .trim();  
+    setNewPost((prevPost) => ({ ...prevPost, slug }));
+  };
+
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     const file = files[0];
@@ -126,6 +137,7 @@ const CreateBlogPost = () => {
 
     // Validate the form (frontend validation)
     if (!validateForm()) {
+      setLoading(false);
       return;
     }
 
@@ -213,6 +225,7 @@ const CreateBlogPost = () => {
                 name="title"
                 value={newPost.title}
                 onChange={handleInputChange}
+                onKeyUp={handleKeyUp}
                 placeholder="Enter blog post title"
                 className="form-input"
               />
@@ -290,7 +303,7 @@ const CreateBlogPost = () => {
                   menubar: true,
                   plugins: ['image', 'link', 'code', 'lists', 'table', 'fullscreen'],
                   toolbar:
-                    'undo redo | bold italic | alignleft aligncenter alignright | image | link | h1 h2 h3 h4 h5 h6 | code | fullscreen',
+                    'undo redo | bold italic | alignleft aligncenter alignright | image | link | h1 h2 h3 h4 h5 h6 | code | fullscreen |numlist bullist',
                   content_style: 'h1,h2,h3,h4,h5,h6 { color: #000; }',
                 }}
               />

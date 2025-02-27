@@ -57,7 +57,7 @@ export const fetchBlogPostById = (id) => API.get(`/blog/getblogpostbyId/${id}`);
 //user Authentication
 export const fetchUsers = () => API.get('/auth/getusers');
 export const createUser = (newUser) => API.post('/auth/createuser', newUser);
-export const updateUser = (id, updatedUser) => API.patch(`/updateuser/${id}`, updatedUser);
+export const updateUser = (updatedUser) => API.post(`/auth/updateuser`, updatedUser);
 export const deleteUser = (id) => API.delete(`/auth/deleteuser/${id}`);
 export const userLogin = (user) => API.post('/auth/login', user);
 export const forgotPassword = (userData) => API.post('/auth/forgot-password', userData);

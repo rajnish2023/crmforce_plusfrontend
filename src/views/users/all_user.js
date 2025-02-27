@@ -24,14 +24,20 @@ import {
   CFormInput as CFormInputModal,
   CFormSelect,
   CFormTextarea,
-  CFormText
+  CFormText,
+  CInputGroupText
 } from '@coreui/react';
-import { fetchUsers, createUser, deleteUser } from '../../api/api';
+import CIcon from '@coreui/icons-react';
+import { cilLockLocked, cilUser } from '@coreui/icons';
+import { fetchUsers, createUser, deleteUser,updateUser } from '../../api/api';
+import './userstyle.css'
 
 const User = () => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
@@ -56,6 +62,10 @@ const User = () => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
+  const [profilePic, setProfilePic] = useState(null);
+
+  const APP_URL = 'https://crmfoceplus-backend.onrender.com';
+
   const loadUsers = async () => {
     try {
       const response = await fetchUsers();
@@ -78,6 +88,54 @@ const User = () => {
     setSearchTerm(e.target.value);
   };
 
+  const openEditModal = (user) => {
+    setCurrentUser(user);
+    setEditModalVisible(true);
+  };
+
+  const closeEditModal = () => {
+    setEditModalVisible(false);
+    setCurrentUser(null);
+  };
+  
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('_id',currentUser._id)
+    formData.append('name', currentUser.name);
+    formData.append('email', currentUser.email);
+    formData.append('role', currentUser.role);
+    formData.append('linkedin', currentUser.linkedin);
+    formData.append('aboutus', currentUser.aboutus);
+    if (profilePic) {
+      formData.append('profilePic', profilePic);
+    }
+ 
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    try {
+     
+      const response = await updateUser(formData);
+      setUsers(users.map(user => (user._id === currentUser._id ? { ...currentUser, profilePic } : user)));
+      alert('User updated successfully');
+      closeEditModal();
+      console.log(response.data);
+    } catch (error) {
+      console.error('Update error:', error);
+      alert('Update failed');
+    }
+  };
+
+
+
+
+
+
+
+
   const toggleModal = () => {
     setModalVisible(!modalVisible);
   };
@@ -94,6 +152,13 @@ const User = () => {
         ...prevUser,
         profilePic: file,
       }));
+    }
+  };
+  
+  const handleEditProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePic(file);  
     }
   };
 
@@ -238,6 +303,7 @@ const User = () => {
                 <CTableDataCell>{user.email}</CTableDataCell>
                 <CTableDataCell>{user.role}</CTableDataCell>
                 <CTableDataCell>
+                <CButton color="info" variant="outline" onClick={() => openEditModal(user)} className="mx-3">Edit</CButton>
                   <CButton color="danger" onClick={() => toggleDeleteModal(user)}>Delete</CButton>
                 </CTableDataCell>
               </CTableRow>
@@ -374,6 +440,101 @@ const User = () => {
           <CButton color="primary" onClick={handleUserCreate}>Create</CButton>
         </CModalFooter>
       </CModal>
+
+      {/* Edit User Modal */}
+      {currentUser && (
+        <CModal visible={editModalVisible} onClose={closeEditModal} size="lg">
+          <CModalHeader>
+            <strong>Edit User</strong>
+          </CModalHeader>
+          <CModalBody>
+            <CForm onSubmit={handleEditSubmit}>
+              <CInputGroup className="mb-3">
+                <CInputGroupText><CIcon icon={cilUser} /></CInputGroupText>
+                <CFormInput
+                  name="username"
+                  placeholder="Username"
+                  value={currentUser.name}
+                  onChange={(e) => setCurrentUser({ ...currentUser, name: e.target.value })}
+                  style={{ borderRadius: '10px', padding: '10px' }}
+                />
+              </CInputGroup>
+              <CInputGroup className="mb-3">
+                <CInputGroupText>@</CInputGroupText>
+                <CFormInput
+                  name="email"
+                  placeholder="Email"
+                  value={currentUser.email}
+                  onChange={(e) => setCurrentUser({ ...currentUser, email: e.target.value })}
+                  style={{ borderRadius: '10px', padding: '10px' }}
+                />
+              </CInputGroup>
+              <CInputGroup className="mb-3">
+                <CInputGroupText><CIcon icon={cilUser} /></CInputGroupText>
+                <CFormSelect
+                  name="role"
+                  options={[
+                    'Select Role',
+                    { label: 'Content Writer', value: 'content-writer' },
+                    { label: 'Seo Expert', value: 'seo-expert' },
+                    { label: 'Super Admin', value: 'superAdmin' },
+                  ]}
+                  value={currentUser.role}
+                  onChange={(e) => setCurrentUser({ ...currentUser, role: e.target.value })}
+                  style={{ borderRadius: '10px', padding: '10px' }}
+                />
+              </CInputGroup>
+              <CInputGroup className="mb-3">
+                <CInputGroupText>@</CInputGroupText>
+                <CFormInput
+                  name="Linkedin"
+                  placeholder="Linkedin Url"
+                  value={currentUser.linkedin}
+                  onChange={(e) => setCurrentUser({ ...currentUser, linkedin: e.target.value })}
+                  style={{ borderRadius: '10px', padding: '10px' }}
+                />
+              </CInputGroup>
+              <CInputGroup className="mb-3">
+                
+                <CFormTextarea
+                  id="aboutus"
+                  rows="3"
+                  value={currentUser.aboutus}
+                  name="aboutus"
+                  placeholder="About Us"
+                  onChange={(e) => setCurrentUser({ ...currentUser, aboutus: e.target.value })}
+                />
+              </CInputGroup>
+              <CInputGroup className="mb-3">
+              <CFormInputModal
+                  id="profilePic"
+                  name="profilePic"
+                  type="file"
+                  onChange={handleEditProfilePicChange}
+                  
+                />
+              </CInputGroup>
+              <CInputGroup className="mb-3">
+              <img
+                    src={`${APP_URL}/uploads/profilePics/${currentUser.profilePic}`}
+                    alt="Banner Preview"
+                    style={{ width: '10%', height: 'auto', borderRadius: '8px' }}
+                  />
+              </CInputGroup>
+              <div className="d-grid mb-3">
+                <CButton color="primary" type="submit" style={{ borderRadius: '20px' }}>
+                  Update User
+                </CButton>
+              </div>
+            </CForm>
+          </CModalBody>
+          <CModalFooter>
+            <CButton color="secondary" onClick={closeEditModal} style={{ borderRadius: '20px' }}>
+              Cancel
+            </CButton>
+          </CModalFooter>
+        </CModal>
+      )}
     </CRow>
   );
 };

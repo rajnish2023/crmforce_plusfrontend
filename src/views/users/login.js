@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CButton, CCard, CCardBody, CCardGroup, CCol, CContainer, CForm, CFormInput, CInputGroup, CInputGroupText, CRow } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilLockLocked, cilUser } from '@coreui/icons';
 
-import { userLogin } from '../../api/api';
+import {getUserProfile, userLogin } from '../../api/api';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +12,30 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const validateToken = async () => {
+        try {
+          const response = await getUserProfile(token);
+          if (response.status === 200) {
+            navigate('/dashboard')
+           }
+           else{
+            navigate('/login')
+           }
+          
+        } catch (err) {
+         
+          localStorage.removeItem('token');
+        }
+        
+      };
+
+      validateToken();
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,6 +50,7 @@ const Login = () => {
 
     try {
       const response = await userLogin({ email, password });
+      console.log("response");
       if (response.data.token) {
         localStorage.setItem('token', response.data.token); 
         navigate('/dashboard', { replace: true });   
