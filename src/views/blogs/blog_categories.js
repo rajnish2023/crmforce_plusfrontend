@@ -201,7 +201,8 @@ const BlogCategory = () => {
       title: category.title,
       slug: category.slug,
       status: category.status,
-      image: null
+      image: null,
+      categoryimg : category.categoryimg
     });
     setModalVisible(true);
   };
@@ -274,6 +275,7 @@ const BlogCategory = () => {
                 <CTableHeaderCell scope="col" className="py-3 px-4">#</CTableHeaderCell>
                 <CTableHeaderCell scope="col" className="py-3 px-4">Title</CTableHeaderCell>
                 <CTableHeaderCell scope="col" className="py-3 px-4">Slug</CTableHeaderCell>
+                <CTableHeaderCell scope="col" className="py-3 px-4">Image</CTableHeaderCell>
                 <CTableHeaderCell scope="col" className="py-3 px-4">Status</CTableHeaderCell>
                 <CTableHeaderCell scope="col" className="py-3 px-4">Actions</CTableHeaderCell>
               </CTableRow>
@@ -284,6 +286,13 @@ const BlogCategory = () => {
                   <CTableHeaderCell scope="row" className="py-3 px-4">{index + 1}</CTableHeaderCell>
                   <CTableDataCell className="py-3 px-4">{category.title}</CTableDataCell>
                   <CTableDataCell className="py-3 px-4">{category.slug}</CTableDataCell>
+                  <CTableDataCell className="py-3 px-4">
+                 <img
+                 src={`${APP_URL}/uploads/${category.categoryimg}`}
+                  alt="Category Banner Preview"
+                  style={{ width: '100px', height: 'auto', borderRadius: '8px' }}
+                />
+                </CTableDataCell>
                   <CTableDataCell className="py-3 px-4">{category.status}</CTableDataCell>
                   <CTableDataCell className="py-3 px-4">
                     <CButton className="mx-3" color="info" onClick={() => handleCategoryEdit(category)}>Edit</CButton>
@@ -352,11 +361,7 @@ const BlogCategory = () => {
                     onChange={handleInputChange}
                   />
                 </CCol>
-                <img
-                 src={`${APP_URL}/uploads/${newCategory.categoryimg}`}
-                  alt="Category Banner Preview"
-                  style={{ width: '10%', height: 'auto', borderRadius: '8px' }}
-                />
+                
                 <CCol xs={6} className="mb-3">
                   <CFormLabel htmlFor="categoryStatus">Status</CFormLabel>
                   <CFormSelect
