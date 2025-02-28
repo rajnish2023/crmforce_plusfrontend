@@ -516,7 +516,7 @@ const User = () => {
               </CInputGroup>
               <CInputGroup className="mb-3">
               <img
-                    src={`${APP_URL}/uploads/profilePics/${currentUser.profilePic}`}
+                    src={`${APP_URL}/uploads/${currentUser.profilePic}`}
                     alt="Banner Preview"
                     style={{ width: '10%', height: 'auto', borderRadius: '8px' }}
                   />
